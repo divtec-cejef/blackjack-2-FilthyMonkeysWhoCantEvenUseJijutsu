@@ -1,0 +1,51 @@
+# ✅ Contraintes de développement — Blackjack en POO (multi-fichiers, sans couleurs/sleep)
+
+## 1) Structure des fichiers (un fichier par classe/enum)
+- `BlackjackApp.java` (lanceur, seul `main`)
+- `ConsoleIO.java` (I/O console)
+- `Rules.java` (constantes de règles)
+- `Card.java` (carte, valeur)
+- `Deck.java` (pioche **1 paquet** — 52 cartes)
+- `Hand.java` (main : cartes, total, rendu)
+- `Player.java` (joueur : nom, solde, mise, main)
+- `Dealer.java` (auto-croupier)
+- `Game.java` (orchestration d’une partie)
+
+> Pas de `package`. Une classe publique par fichier, **nom du fichier = nom de la classe**.
+
+## 2) Règles de conception
+- **Zéro `static` dans la logique**, seule exception : `public static void main` dans `BlackjackApp`.
+- **Séparation IHM / logique** : toutes les entrées/sorties console passent par `ConsoleIO`.
+- **Encapsulation** : attributs privés + getters utiles ; pas d’exposition de collections modifiables (méthode `reset()` côté `Hand`).
+- **Responsabilités nettes** : `Game` orchestre ; `Dealer` joue tout seul ; `Player` gère solde/mise/main ; `Deck` gère la pioche (52 cartes, reshuffle si vide).
+- **Lisibilité** : méthodes courtes, noms explicites ; pas de “couteau suisse”.
+
+## 3) Règles de jeu
+- **Ordre** : la **banque tire 1 carte visible (upcard) d’abord**, puis le joueur reçoit **2 cartes** (affichage `c1 + c2 = total`).
+- Joueur : **Hit/Stand** en boucle, **stand forcé** à 21, **Double** **uniquement à la 1re décision** si solde ≥ mise (débit immédiat, **1 seule carte**, stand auto).
+- Banque : **révèle** sa 2ᵉ carte, puis pioche jusqu’à **≥ 17**.
+- **Mises** : min 10, **multiples de 10**. Débit immédiat.
+  - **Victoire** : `+2 × mise`
+  - **Égalité (push)** : `+1 × mise`
+  - **Défaite** : `+0`
+- **Deck** : 1 paquet (2..9, 10/J/Q/K=10, As=11 **simplifié**), reshuffle auto si épuisé.
+- **Arrêt** : si solde < 10 ou si le joueur répond “n”.
+
+## 4) Interdits
+- ❌ `static` hors `main`.
+- ❌ I/O directes (`System.out`, `Scanner`) dans la logique métier (tout via `ConsoleIO`).
+- ❌ Couleurs ANSI, timers, bibliothèques externes.
+- ❌ Modifier les règles ci-dessus.
+
+## 5) Attendus finaux
+- Jeu jouable en console : upcard banque → tour joueur (Hit/Stand/Double) → tour banque → règlement → solde à jour → rejouer ?
+- Affichages simples et clairs (ex. cartes sous la forme `[ 7 ]`).
+
+## 6) Jalons conseillés
+1. **Modèle cartes** : `Card`, `Deck` (reset/shuffle/draw), test rapide.
+2. **Main** : `Hand` (add, total, reset, pretty).
+3. **I/O & règles** : `ConsoleIO`, `Rules`.
+4. **Acteurs** : `Player` (solde/mise), `Dealer` (main + tour auto).
+5. **Tour joueur** : 2 cartes, boucle Hit/Stand, **Double** à la 1re décision.
+6. **Orchestration** : `Game` (upcard → joueur → banque → règlement).
+7. **Robustesse** : validations et prompts propres.
